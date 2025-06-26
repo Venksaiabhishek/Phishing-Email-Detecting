@@ -1,0 +1,11 @@
+id,text,label
+1,Your PayPal account has been restricted. Click here to restore.,1
+2,Meeting rescheduled to 3 PM tomorrow. Please confirm.,0
+3,Amazon order #123456 has shipped.,0
+4,Suspicious login detected. Verify your identity now.,1
+5,Congratulations! You've won a free iPhone. Claim now.,1
+6,Your Netflix membership has been suspended due to billing issues. Please update your payment information to continue enjoying our services: http://netflix-billupdate.com,1
+7,Thank you for your purchase! Your order #48291 has been shipped. You can track your order using the following link: https://www.amazon.com/track-order,0
+8,We've detected suspicious activity in your bank account. Immediate verification is required. Click here to secure your account: http://secure-yourbank.info,1
+9,Meeting reminder: The quarterly performance review will be held on Thursday at 2 PM. Please be prepared with your progress updates.,0
+10,Congratulations! You've won an iPhone 15. Click the link to claim your prize before it expires: http://iphone-prize-giveaway.com,1
