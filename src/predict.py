@@ -1,54 +1,79 @@
-import os
 import joblib
+import os
 import gdown
-from collections import Counter
+import numpy as np
 
-# Mapping of model names and their Drive file IDs
-FILES = {
-    "logistic_regression.joblib": "1meRs6yHSv2qcTLo--i2-RImKQ_W1HbFY",
-    "random_forest.joblib": "1oOp7i1lwb_HeF6lKuL_PEZ6oDuG9IZDd",
-    "xgboost.joblib": "1ccYMFc9ib0TdVE-MP_qPJp3GpQnt749E",
-    "naive_bayes.joblib": "1A4rokomiKU-ov_c2ssGeu6KECTv0_kml",
-    "svc.joblib": "1ACnjQ4tGCYAL4SN7O7V8toBgz7veh9Pd",
-    "decision_tree.joblib": "1zkJcP25AT0JhgqCqD1VlT3BizIWGAIo8",
-    "knn.joblib": "1txMEoU7MkGizWvq89OPYN3q9asYFntoW",
-    "tfidf_vectorizer.joblib": "1kKUuP_Omp4fw-qSwO2c5o15dwF09Um3h"
+# Define file IDs and associated metadata
+MODEL_INFO = {
+    "Logistic Regression": {
+        "model_file": "logistic_regression.joblib",
+        "acc": 97.85,
+        "gdown_id": "1meRs6yHSv2qcTLo--i2-RImKQ_W1HbFY"
+    },
+    "Random Forest": {
+        "model_file": "random_forest.joblib",
+        "acc": 98.14,
+        "gdown_id": "1oOp7i1lwb_HeF6lKuL_PEZ6oDuG9IZDd"
+    },
+    "Decision Tree": {
+        "model_file": "decision_tree.joblib",
+        "acc": 96.32,
+        "gdown_id": "1ccYMFc9ib0TdVE-MP_qPJp3GpQnt749E"
+    },
+    "Naive Bayes": {
+        "model_file": "naive_bayes.joblib",
+        "acc": 95.67,
+        "gdown_id": "1A4rokomiKU-ov_c2ssGeu6KECTv0_kml"
+    },
+    "Gradient Boosting": {
+        "model_file": "gradient_boosting.joblib",
+        "acc": 98.92,
+        "gdown_id": "1ACnjQ4tGCYAL4SN7O7V8toBgz7veh9Pd"
+    },
+    "AdaBoost": {
+        "model_file": "adaboost.joblib",
+        "acc": 97.12,
+        "gdown_id": "1zkJcP25AT0JhgqCqD1VlT3BizIWGAIo8"
+    },
+    "KNN": {
+        "model_file": "knn.joblib",
+        "acc": 94.88,
+        "gdown_id": "1txMEoU7MkGizWvq89OPYN3q9asYFntoW"
+    }
 }
 
-def download_if_missing(file, file_id):
-    if not os.path.exists(f"models/{file}"):
-        os.makedirs("models", exist_ok=True)
-        url = f"https://drive.google.com/uc?id={file_id}"
-        gdown.download(url, f"models/{file}", quiet=False)
+# TF-IDF Vectorizer info
+VEC_FILE = "tfidf_vectorizer.joblib"
+VEC_GDOWN_ID = "1kKUuP_Omp4fw-qSwO2c5o15dwF09Um3h"
 
-# Download all files
-for file, file_id in FILES.items():
-    download_if_missing(file, file_id)
+def download_if_not_exists(file_name, file_id):
+    if not os.path.exists(file_name):
+        url = f"https://drive.google.com/uc?id={file_id}"
+        gdown.download(url, file_name, quiet=False)
 
 # Load vectorizer
-vectorizer = joblib.load("models/tfidf_vectorizer.joblib")
+download_if_not_exists(VEC_FILE, VEC_GDOWN_ID)
+vectorizer = joblib.load(VEC_FILE)
 
-# Load all models
-models = {
-    name.replace(".joblib", ""): joblib.load(f"models/{name}")
-    for name in FILES
-    if name != "tfidf_vectorizer.joblib"
-}
+# Load models
+models = {}
+for model_name, info in MODEL_INFO.items():
+    download_if_not_exists(info["model_file"], info["gdown_id"])
+    models[model_name] = joblib.load(info["model_file"])
 
-def predict_email(email_text):
-    X = vectorizer.transform([email_text])
-    preds = []
+def predict_email(text):
+    X = vectorizer.transform([text])
+    predictions = {}
+    votes = []
 
-    for model_name, model in models.items():
-        pred = model.predict(X)[0]
-        preds.append(pred)
+    for model_name, clf in models.items():
+        pred = clf.predict(X)[0]
+        label = "Phishing" if pred == 1 else "Legitimate"
+        acc = MODEL_INFO[model_name]["acc"]
+        predictions[model_name] = (label, acc)
+        votes.append(pred)
 
-    # Majority vote
-    final_pred = Counter(preds).most_common(1)[0][0]
-    confidence = round((preds.count(final_pred) / len(preds)) * 100, 2)
-    label = "Phishing" if final_pred == 1 else "Legitimate"
-
-    return {
-        "label": label,
-        "confidence": f"{confidence}%"
-    }
+    final_pred = round(np.mean(votes))  # Majority vote
+    final_label = "Phishing" if final_pred == 1 else "Legitimate"
+    overall_acc = np.mean([info["acc"] for info in MODEL_INFO.values()])
+    return final_label, overall_acc, predictions
