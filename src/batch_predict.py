@@ -1,6 +1,5 @@
 import pandas as pd
 import joblib
-import os
 
 # Load vectorizer
 vectorizer = joblib.load("models/tfidf_vectorizer.joblib")
