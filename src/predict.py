@@ -14,6 +14,7 @@ MODEL_FILES = {
     "Decision Tree": "1txMEoU7MkGizWvq89OPYN3q9asYFntoW",
     "Gradient Boosting": "1kKUuP_Omp4fw-qSwO2c5o15dwF09Um3h"
 }
+
 VEC_FILE = "tfidf_vectorizer.joblib"
 VEC_ID = "1Wtv5O1o6GfNU2Z7gAIGMCVkk_QI3Du0A"
 
@@ -33,11 +34,11 @@ def download_if_not_exists(file_name, file_id):
         url = f"https://drive.google.com/uc?id={file_id}"
         gdown.download(url, file_name, quiet=False)
 
-# Load vectorizer
+# Always load vectorizer first
 download_if_not_exists(VEC_FILE, VEC_ID)
 vectorizer = joblib.load(VEC_FILE)
 
-# Load models
+# Now load models (individually named to avoid overwriting)
 models = {}
 for name, file_id in MODEL_FILES.items():
     file_path = f"{name.replace(' ', '_').lower()}.joblib"
