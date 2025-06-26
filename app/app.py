@@ -21,7 +21,18 @@ if st.button("Analyze"):
             result = predict_transformer(email_input)
             label = max(result, key=result.get)
             confidence = result[label] * 100
-            st.markdown(f"**Prediction:** {label.capitalize()}")
+
+            # Highlight the prediction
+            st.markdown(
+                f"<h2 style='color:{"red" if label == "phishing" else "green"};'>Prediction: {label.upper()}</h2>",
+                unsafe_allow_html=True
+            )
             st.markdown(f"**Confidence:** {confidence:.2f}%")
+
+            # Optional visual cue
+            if label == "phishing":
+                st.error("⚠️ This email is likely a phishing attempt.")
+            else:
+                st.success("✅ This email appears to be legitimate.")
         except Exception as e:
             st.error(f"Error with transformer model: {e}")
