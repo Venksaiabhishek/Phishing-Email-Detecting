@@ -32,5 +32,5 @@ def predict_email(email_text):
 if __name__ == "__main__":
     sample = "Your account has been suspended. Click http://fake-login.com"
     output = predict_email(sample)
-    for m, l in output.items():
-        print(f"{m:<20}: {l}")
+    for m, label in output.items():
+        print(f"{m:<20}: {label}")
